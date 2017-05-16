@@ -39,7 +39,7 @@ config.plugins.fallback.receivers = ConfigSubList()
 def initFallbackReceiverConfig():
 	config.plugins.fallback.receivers.append(ConfigSubsection())
 	i = len(config.plugins.fallback.receivers) -1
-	config.plugins.fallback.receivers[i].name = ConfigText(default = "Remote receiver", visible_width = 30, fixed_size = False)
+	config.plugins.fallback.receivers[i].name = ConfigText(default = _("Remote receiver"), visible_width = 30, fixed_size = False)
 	config.plugins.fallback.receivers[i].ip = ConfigIP(default = [192,168,1,20])
 	return config.plugins.fallback.receivers[i]
 
@@ -132,7 +132,7 @@ class FallbackReceivers(Screen, ConfigListScreen):
 				return
 			config.usage.remote_fallback.value="http://%s:8001" % ip
 			config.usage.remote_fallback.save()
-			self["fallback"].setText(_("Current: %s") % config.usage.remote_fallback.value )
+			self["fallback"].setText(_("Current:  %s") % config.usage.remote_fallback.value )
 		self.session.openWithCallback(fallbackConfirm, MessageBox, _("Set %s as fallback remote receiver?") % sel.name.value)
 
 class FallbackReceiversList(MenuList):
