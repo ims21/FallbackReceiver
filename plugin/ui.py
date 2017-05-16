@@ -151,10 +151,10 @@ class FallbackReceiversList(MenuList):
 		self.list=[]
 		for c in config.plugins.fallback.receivers:
 			res = [c]
-			x, y, w, h = skin.parameters.get("FallbackReceiversListName",(5, 0, 250, 20))
+			x, y, w, h = skin.parameters.get("FallbackReceiverListName",(5, 0, 250, 20))
 			res.append((eListboxPythonMultiContent.TYPE_TEXT, x, y, w, h, 1, RT_HALIGN_LEFT|RT_VALIGN_CENTER, str(c.name.value)))
 			ip = "%d.%d.%d.%d" % tuple(c.ip.value)
-			x, y, w, h = skin.parameters.get("FallbackReceiversListIP",(260, 0, 250, 20))
+			x, y, w, h = skin.parameters.get("FallbackReceiverListIP",(260, 0, 250, 20))
 			res.append((eListboxPythonMultiContent.TYPE_TEXT, x, y, w, h, 1, RT_HALIGN_LEFT|RT_VALIGN_CENTER, str(ip)))
 			self.list.append(res)
 		self.l.setList(self.list)
