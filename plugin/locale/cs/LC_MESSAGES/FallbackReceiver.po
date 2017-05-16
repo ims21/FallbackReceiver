@@ -24,7 +24,7 @@ msgid "Current:  %s"
 msgstr "Aktuální:  %s"
 
 msgid "Set Fallback Receiver"
-msgstr "Nastavit záložní přijímač"
+msgstr "Nastavení záložního přijímače"
 
 msgid "Set as fallback"
 msgstr "Nastavit záložní"
