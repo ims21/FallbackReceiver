@@ -138,10 +138,10 @@ class FallbackReceivers(Screen, ConfigListScreen):
 class FallbackReceiversList(MenuList):
 	def __init__(self, list, enableWrapAround = True):
 		MenuList.__init__(self, list, enableWrapAround, eListboxPythonMultiContent)
-		font = skin.fonts.get("FallbackReceiversList0", ("Regular", 22, 25))
+		font = skin.fonts.get("FallbackReceiverList0", ("Regular", 22, 25))
 		self.l.setFont(0, gFont(font[0], font[1]))
 		self.ItemHeight = int(font[2])
-		font = skin.fonts.get("FallbackReceiversList1", ("Regular", 22))
+		font = skin.fonts.get("FallbackReceiverList1", ("Regular", 22))
 		self.l.setFont(1, gFont(font[0], font[1]))
 	def postWidgetCreate(self, instance):
 		MenuList.postWidgetCreate(self, instance)
