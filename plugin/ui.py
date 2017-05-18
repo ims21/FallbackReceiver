@@ -82,13 +82,13 @@ class FallbackReceivers(Screen, ConfigListScreen):
 
 		self["key_red"] = Button(_("Close"))
 		self["key_yellow"] = Button(_("Edit"))
-		self["key_green"] = Button(_("Set as fallback"))
+		self["key_green"] = Button(_("Set"))
 		self["key_blue"] = Button(_("Add"))
 		self["entrylist"] = FallbackReceiversList([])
 
 		self["actions"] = ActionMap(["WizardActions","MenuActions","ShortcutActions"],
 			{
-			 "ok"	:	self.keyEdit,
+			 "ok"	:	self.setAsFallback,
 			 "back"	:	self.keyClose,
 			 "red"	:	self.keyClose,
 			 "yellow":	self.keyEdit,

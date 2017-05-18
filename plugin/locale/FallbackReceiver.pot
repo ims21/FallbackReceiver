@@ -26,7 +26,7 @@ msgstr ""
 msgid "Set Fallback Receiver"
 msgstr ""
 
-msgid "Set as fallback"
+msgid "Set"
 msgstr ""
 
 msgid "Set %s as fallback remote receiver?"
