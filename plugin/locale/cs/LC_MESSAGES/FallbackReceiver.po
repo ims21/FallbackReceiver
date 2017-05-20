@@ -37,3 +37,6 @@ msgstr "Upravit vzdálený přijímač"
 
 msgid "Really delete %s?"
 msgstr "Opravdu smazat %s?"
+
+msgid "This box is used as remote fallback receiver"
+msgstr "Tento přijímač je použit jako záložní"

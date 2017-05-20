@@ -38,3 +38,5 @@ msgstr ""
 msgid "Really delete %s?"
 msgstr ""
 
+msgid "This box is used as remote fallback receiver"
+msgstr ""

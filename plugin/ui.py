@@ -20,7 +20,7 @@
 from . import _
 
 from Plugins.Plugin import PluginDescriptor
-from enigma import eListboxPythonMultiContent, eListbox, gFont, RT_HALIGN_LEFT, RT_VALIGN_CENTER
+from enigma import eListboxPythonMultiContent, eListbox, gFont, RT_HALIGN_LEFT, RT_VALIGN_CENTER, eTimer
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
 from Components.MenuList import MenuList
@@ -40,7 +40,7 @@ def initFallbackReceiverConfig():
 	config.plugins.fallback.receivers.append(ConfigSubsection())
 	i = len(config.plugins.fallback.receivers) -1
 	config.plugins.fallback.receivers[i].name = ConfigText(default = _("Remote receiver"), visible_width = 30, fixed_size = False)
-	config.plugins.fallback.receivers[i].ip = ConfigIP(default = [192,168,1,20])
+	config.plugins.fallback.receivers[i].ip = ConfigIP(default = [192,168,1,100])
 	return config.plugins.fallback.receivers[i]
 
 def initConfig():
@@ -84,31 +84,34 @@ class FallbackReceivers(Screen, ConfigListScreen):
 		self["key_yellow"] = Button(_("Edit"))
 		self["key_green"] = Button(_("Set"))
 		self["key_blue"] = Button(_("Add"))
-		self["entrylist"] = FallbackReceiversList([])
 
-		self["actions"] = ActionMap(["WizardActions","MenuActions","ShortcutActions"],
+		self["entrylist"] = FallbackReceiversList([])
+		self["entrylist"].onSelectionChanged.append(self.changedEntry)
+
+		self["actions"] = ActionMap(["OkCancelActions","ColorActions"],
 			{
-			 "ok"	:	self.setAsFallback,
-			 "back"	:	self.keyClose,
-			 "red"	:	self.keyClose,
-			 "yellow":	self.keyEdit,
-			 "blue": 	self.keyAdd,
-			 "green":	self.setAsFallback,
+			"ok":		self.setAsFallback,
+			"cancel":	self.keyClose,
+			"red":		self.keyClose,
+			"yellow":	self.keyEdit,
+			"blue": 	self.keyAdd,
+			"green":	self.setAsFallback,
 			 }, -1)
 
+		self.msgNM=None
 		self.onLayoutFinish.append(self.updateList)
 
 	def updateList(self):
 		self["entrylist"].buildList()
+
+	def changedEntry(self):
+		self.msgDialogHide()
 
 	def keyClose(self):
 		self.close()
 
 	def keyAdd(self):
 		self.session.openWithCallback(self.updateList, FallbackReceiverConfigScreen, None)
-
-	def keyOK(self):
-		pass
 
 	def keyEdit(self):
 		try:
@@ -127,13 +130,29 @@ class FallbackReceivers(Screen, ConfigListScreen):
 		ip = "%d.%d.%d.%d" % tuple(sel.ip.value)
 		if not ip:
 			return
+		new_fallback = "http://%s:8001" % ip
+		if new_fallback == config.usage.remote_fallback.value:
+			self.msgDialog(_("This box is used as remote fallback receiver"), delay=3)
+			return
 		def fallbackConfirm(result):
 			if not result:
 				return
-			config.usage.remote_fallback.value="http://%s:8001" % ip
+			config.usage.remote_fallback.value = new_fallback
 			config.usage.remote_fallback.save()
 			self["fallback"].setText(_("Current:  %s") % config.usage.remote_fallback.value )
 		self.session.openWithCallback(fallbackConfirm, MessageBox, _("Set %s as fallback remote receiver?") % sel.name.value)
+
+	def msgDialog(self, text="", delay=0):
+		if self.msgNM:
+			self.msgDialogHide()
+		else:
+			if self.session is not None:
+				self.msgNM = self.session.instantiateDialog(NonModalMessageBoxDialog, text=text, delay=delay)
+				self.msgNM.show()
+	def msgDialogHide(self):
+		if self.msgNM:
+			self.session.deleteDialog(self.msgNM)
+			self.msgNM = None
 
 class FallbackReceiversList(MenuList):
 	def __init__(self, list, enableWrapAround = True):
@@ -248,3 +267,31 @@ class FallbackReceiverConfigScreen(ConfigListScreen, Screen):
 		if self.newmode:
 			config.plugins.fallback.receivers.remove(self.current)
 		ConfigListScreen.cancelConfirm(self, True)
+
+class NonModalMessageBoxDialog(Screen):
+	skin="""
+		<screen name="NonModalMessageBoxDialog" position="center,center" size="470,120" backgroundColor="#00404040" zPosition="2" flags="wfNoBorder">
+			<widget name="message" position="center,center" size="460,110" font="Regular;20" valign="center" halign="center"/>
+		</screen>
+	"""
+	def __init__(self, session, text="", delay=0):
+		Screen.__init__(self, session)
+		self.text = text
+		self.delay = delay
+		self["message"]=Label()
+
+		self.timer = eTimer()
+		self.timer.callback.append(self.timerLoop)
+
+		self.onLayoutFinish.append(self.timerStart)
+
+	def timerStart(self):
+		self["message"].setText(self.text)
+		self.timer.start(1000, True)
+
+	def timerLoop(self):
+		self.delay -= 1
+		if self.delay > 0:
+			self.timer.start(1000, True)
+		else:
+			self.session.deleteDialog(self)
