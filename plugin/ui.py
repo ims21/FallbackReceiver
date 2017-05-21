@@ -55,20 +55,19 @@ initConfig()
 
 class FallbackReceivers(Screen, ConfigListScreen):
 	skin = """
-		<screen position="center,center" size="550,420" title="Set Fallback Receiver" >
-			<ePixmap name="red" position="0,0" zPosition="4" size="140,40" pixmap="skin_default/buttons/red.png" transparent="1" alphatest="on" />
-			<ePixmap name="yellow" position="280,0" zPosition="4" size="140,40" pixmap="skin_default/buttons/yellow.png" transparent="1" alphatest="on" />
-			<ePixmap name="green" position="140,0" zPosition="4" size="140,40" pixmap="skin_default/buttons/green.png" transparent="1" alphatest="on" />
-			<ePixmap name="blue" position="420,0" zPosition="4" size="140,40" pixmap="skin_default/buttons/blue.png" transparent="1" alphatest="on" />
-			<widget name="key_red" position="0,0" size="140,40" zPosition="5" valign="center" halign="center" backgroundColor="red" font="Regular;20" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
-			<widget name="key_yellow" position="280,0" size="140,40" zPosition="5" valign="center" halign="center" backgroundColor="yellow" font="Regular;20" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
-			<widget name="key_green" position="140,0" size="140,40" zPosition="5" valign="center" halign="center" backgroundColor="green" font="Regular;20" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
-			<widget name="key_blue" position="420,0" zPosition="5" size="140,40" valign="center" halign="center" font="Regular;20" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
-
-			<widget name="fallback" position="5,50" size="540,25" font="Regular;22" halign="left"/>
-			<widget name="name" position="5,80" size="250,25" font="Regular;22" halign="left"/>
-			<widget name="ip" position="260,80" size="250,25" font="Regular;22" halign="left"/>
-			<widget name="entrylist" position="5,110" size="540,300" scrollbarMode="showOnDemand"/>
+		<screen position="center,center" size="560,420" title="Set Fallback Receiver" >
+			<ePixmap name="red" position="0,0" size="140,40" pixmap="skin_default/buttons/red.png" transparent="1" alphatest="on" />
+			<ePixmap name="green" position="140,0" size="140,40" pixmap="skin_default/buttons/green.png" transparent="1" alphatest="on" />
+			<ePixmap name="yellow" position="280,0" size="140,40" pixmap="skin_default/buttons/yellow.png" transparent="1" alphatest="on" />
+			<ePixmap name="blue" position="420,0" size="140,40" pixmap="skin_default/buttons/blue.png" transparent="1" alphatest="on" />
+			<widget  name="key_red" position="0,0" size="140,40" zPosition="1" valign="center" halign="center" backgroundColor="red" font="Regular;20" transparent="1"/>
+			<widget  name="key_green" position="140,0" size="140,40" zPosition="1" valign="center" halign="center" backgroundColor="green" font="Regular;20" transparent="1"/>
+			<widget  name="key_yellow" position="280,0" size="140,40" zPosition="1" valign="center" halign="center" backgroundColor="yellow" font="Regular;20" transparent="1"/>
+			<widget  name="key_blue" position="420,0" size="140,40" zPosition="1" valign="center" halign="center" backgroundColor="blue" font="Regular;20" transparent="1"/>
+			<widget name="fallback" position="5,50" size="550,25" font="Regular;22" halign="left"/>
+			<widget name="name" position="5,80" size="275,25" font="Regular;22" halign="left"/>
+			<widget name="ip" position="280,80" size="275,25" font="Regular;22" halign="left"/>
+			<widget name="entrylist" position="5,110" size="550,300" scrollbarMode="showOnDemand"/>
 		</screen>"""
 
 	def __init__(self, session):
@@ -81,8 +80,8 @@ class FallbackReceivers(Screen, ConfigListScreen):
 		self["ip"] = Label(_("IP"))
 
 		self["key_red"] = Button(_("Close"))
-		self["key_yellow"] = Button(_("Edit"))
 		self["key_green"] = Button(_("Set"))
+		self["key_yellow"] = Button(_("Edit"))
 		self["key_blue"] = Button(_("Add"))
 
 		self["entrylist"] = FallbackReceiversList([])
@@ -92,10 +91,10 @@ class FallbackReceivers(Screen, ConfigListScreen):
 			{
 			"ok":		self.setAsFallback,
 			"cancel":	self.keyClose,
+			"green":	self.setAsFallback,
 			"red":		self.keyClose,
 			"yellow":	self.keyEdit,
 			"blue": 	self.keyAdd,
-			"green":	self.setAsFallback,
 			 }, -1)
 
 		self.msgNM=None
@@ -105,7 +104,7 @@ class FallbackReceivers(Screen, ConfigListScreen):
 		self["entrylist"].buildList()
 
 	def changedEntry(self):
-		self.msgDialogHide()
+		self.MessageBoxNM()
 
 	def keyClose(self):
 		self.close()
@@ -132,7 +131,7 @@ class FallbackReceivers(Screen, ConfigListScreen):
 			return
 		new_fallback = "http://%s:8001" % ip
 		if new_fallback == config.usage.remote_fallback.value:
-			self.msgDialog(_("This box is used as remote fallback receiver"), delay=3)
+			self.MessageBoxNM(True, _("This box is used as remote fallback receiver"), 3)
 			return
 		def fallbackConfirm(result):
 			if not result:
@@ -142,17 +141,15 @@ class FallbackReceivers(Screen, ConfigListScreen):
 			self["fallback"].setText(_("Current:  %s") % config.usage.remote_fallback.value )
 		self.session.openWithCallback(fallbackConfirm, MessageBox, _("Set %s as fallback remote receiver?") % sel.name.value)
 
-	def msgDialog(self, text="", delay=0):
-		if self.msgNM:
-			self.msgDialogHide()
-		else:
-			if self.session is not None:
-				self.msgNM = self.session.instantiateDialog(NonModalMessageBoxDialog, text=text, delay=delay)
-				self.msgNM.show()
-	def msgDialogHide(self):
+	def MessageBoxNM(self, display=False, text="", delay=0):
 		if self.msgNM:
 			self.session.deleteDialog(self.msgNM)
 			self.msgNM = None
+		else:
+			if display and self.session is not None:
+				self.msgNM = self.session.instantiateDialog(NonModalMessageBoxDialog, text=text, delay=delay)
+				self.msgNM.show()
+
 
 class FallbackReceiversList(MenuList):
 	def __init__(self, list, enableWrapAround = True):
@@ -182,16 +179,15 @@ class FallbackReceiversList(MenuList):
 class FallbackReceiverConfigScreen(ConfigListScreen, Screen):
 	skin = """
 		<screen name="FallbackReceiverConfigScreen" position="center,center" size="560,110" title="Edit Remote Receiver">
-			<ePixmap name="red" position="0,0" zPosition="1" size="140,40" pixmap="skin_default/buttons/red.png" transparent="1" alphatest="on" />
-			<ePixmap name="green" position="140,0" zPosition="1" size="140,40" pixmap="skin_default/buttons/green.png" transparent="1" alphatest="on" />
-			<ePixmap name="yellow" position="280,0" zPosition="1" size="140,40" pixmap="skin_default/buttons/yellow.png" transparent="1" alphatest="on" />
-			<ePixmap name="blue" position="420,0" zPosition="1" size="140,40" pixmap="skin_default/buttons/blue.png" transparent="1" alphatest="on" />
-
-			<widget name="key_red" position="0,0" zPosition="2" size="140,40" valign="center" halign="center" font="Regular;20" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
-			<widget name="key_green" position="140,0" zPosition="2" size="140,40" valign="center" halign="center" font="Regular;20" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
-			<widget name="key_yellow" position="280,0" zPosition="2" size="140,40" valign="center" halign="center" font="Regular;20" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
-			<widget name="key_blue" position="420,0" zPosition="2" size="140,40" valign="center" halign="center" font="Regular;20" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
-			<widget name="config" position="10,50" size="540,100" scrollbarMode="showOnDemand" />
+			<ePixmap name="red" position="0,0" size="140,40" pixmap="skin_default/buttons/red.png" transparent="1" alphatest="on" />
+			<ePixmap name="green" position="140,0" size="140,40" pixmap="skin_default/buttons/green.png" transparent="1" alphatest="on" />
+			<ePixmap name="yellow" position="280,0" size="140,40" pixmap="skin_default/buttons/yellow.png" transparent="1" alphatest="on" />
+			<ePixmap name="blue" position="420,0" size="140,40" pixmap="skin_default/buttons/blue.png" transparent="1" alphatest="on" />
+			<widget  name="key_red" position="0,0" size="140,40" zPosition="1" valign="center" halign="center" backgroundColor="red" font="Regular;20" transparent="1"/>
+			<widget  name="key_green" position="140,0" size="140,40" zPosition="1" valign="center" halign="center" backgroundColor="green" font="Regular;20" transparent="1"/>
+			<widget  name="key_yellow" position="280,0" size="140,40" zPosition="1" valign="center" halign="center" backgroundColor="yellow" font="Regular;20" transparent="1"/>
+			<widget  name="key_blue" position="420,0" size="140,40" zPosition="1" valign="center" halign="center" backgroundColor="blue" font="Regular;20" transparent="1"/>
+			<widget name="config" position="5,50" size="550,100" scrollbarMode="showOnDemand" />
 		</screen>"""
 
 	def __init__(self, session, entry):
