@@ -27,7 +27,7 @@ def main(session, **kwargs):
 	session.open(ui.FallbackReceivers)
 
 def startSetup(menuid):
-	if menuid == "system":
+	if menuid == "expert":
 		return [(_("Set Fallback Receiver"), main, "fallbackreceiver", 0)]
 	return []
 
