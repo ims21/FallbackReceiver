@@ -3,7 +3,7 @@ import setup_translate
 
 pkg = 'Extensions.FallbackReceiver'
 setup (name = 'enigma2-plugin-extensions-fallbackreceiver',
-       version = '1.03',
+       version = '1.04',
        description = 'set fallback remote receiver from editable list',
        packages = [pkg],
        package_dir = {pkg: 'plugin'},
