@@ -21,13 +21,14 @@
 from . import _
 
 from Plugins.Plugin import PluginDescriptor
+from Components.config import config
 
 def main(session, **kwargs):
 	import ui
 	session.open(ui.FallbackReceivers)
 
 def startSetup(menuid):
-	if menuid == "expert":
+	if menuid == "expert" and config.usage.setup_level.index >= 1:
 		return [(_("Set Fallback Receiver"), main, "fallbackreceiver", 0)]
 	return []
 
