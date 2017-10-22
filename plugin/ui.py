@@ -165,16 +165,22 @@ class FallbackReceiversList(MenuList):
 
 	def buildList(self):
 		self.list=[]
+		index = 0
+		position = 0
+		current = config.usage.remote_fallback.value.replace("http://","").replace(":8001","")
 		for c in config.plugins.fallback.receivers:
 			res = [c]
 			x, y, w, h = skin.parameters.get("FallbackReceiverListName",(5, 0, 250, 20))
 			res.append((eListboxPythonMultiContent.TYPE_TEXT, x, y, w, h, 1, RT_HALIGN_LEFT|RT_VALIGN_CENTER, str(c.name.value)))
 			ip = "%d.%d.%d.%d" % tuple(c.ip.value)
+			if ip == current:
+				position = index
 			x, y, w, h = skin.parameters.get("FallbackReceiverListIP",(260, 0, 250, 20))
 			res.append((eListboxPythonMultiContent.TYPE_TEXT, x, y, w, h, 1, RT_HALIGN_LEFT|RT_VALIGN_CENTER, str(ip)))
 			self.list.append(res)
+			index += 1
 		self.l.setList(self.list)
-		self.moveToIndex(0)
+		self.moveToIndex(position)
 
 class FallbackReceiverConfigScreen(ConfigListScreen, Screen):
 	skin = """
